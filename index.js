@@ -111,8 +111,6 @@ client.on('messageCreate', (message) => {
     return;
   }
 
-  console.log(__eventsClients);
-
   __eventsClients.forEach(item => {
     item.data.eventCommand == "messageCreate" ? item.execute({message: message}) : "";
   });

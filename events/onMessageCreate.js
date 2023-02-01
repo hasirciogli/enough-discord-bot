@@ -7,18 +7,12 @@ module.exports = {
         eventName: "levelSystemMessageCreateEvent",
         eventCommand: "messageCreate",
     },
-
-    execute: (eParams) => {
+    execute: (data) => {
         levelSystem.execute({
-            params: eParams,
-            message: eParams.message,
-            author: eParams.message.author,
-            content: eParams.message.content,
+            params: data,
+            message: data,
+            author: data.author,
+            content: data.content,
         });
-
-        return;
-        
-        eParams.message.channel.send(eParams.message.content);
-        eParams.message.delete();
     }
 };

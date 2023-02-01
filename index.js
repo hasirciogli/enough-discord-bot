@@ -1,4 +1,4 @@
-const { REST, Routes, Client, GatewayIntentBits, PermissionFlagsBits, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes, Client, GatewayIntentBits, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 const client = new Client({
   intents: [
     GatewayIntentBits.DirectMessages,
@@ -17,64 +17,66 @@ const cConfig = require('./data/config.json');
 
 
 var __commands = [];
+var isLoadFinished = false;
 var __eventsClients = new Map();
 
 
-const loadClientBotData = async () => {
+const loadClientBotData = () => {
   __commands = [];
 
-    await fs.readdir("./commands/", async (err, files) => {
-      if (err) return console.error(err);
-      await files.forEach(async (file) => {
-        if (!file.endsWith(".js")) return;
-        let props = require(`./commands/${file}`);
+  fs.readdir("./commands/", async (err, files) => {
+    if (err) return console.error(err);
+    await files.forEach(async (file) => {
+      if (!file.endsWith(".js")) return;
+      let props = await require(`./commands/${file}`);
 
-        await props.forEach(async (command) => {
-          await console.log(`Yüklenen komut: ${command.data.name}`);
+      await props.forEach(async (command) => {
+        console.log(`Yüklenen komut: ${command.data.name}`);
 
-          var vData = command.data;
-          vData.execute = command.execute;
+        var vData = command.data;
+        vData.execute = command.execute;
 
-          __commands.push(vData);
-        });
+        await __commands.push(vData);
+        return;
       });
-
-      setTimeout(() => {
-        console.log('Started refreshing application (/) commands.');
-
-        rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
-
-        console.log('Successfully reloaded application (/) commands.');
-      }, 3000);
-
     });
 
+    setTimeout(() => {
+      console.log('Started refreshing application (/) commands.');
 
-    __eventsClients = new Map();
+      rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
 
-    await fs.readdir("./events/", async (err, files) => {
-      if (err) return console.error(err);
-      await files.forEach(async (file) => {
-        if (!file.endsWith(".js")) return;
-        let props = require(`./events/${file}`);
+      console.log('Successfully reloaded application (/) commands.');
+    }, 3000);
 
-        __eventsClients.set(props.data.eventCommand, props);
-        await console.log('');
-        await console.log(`Yüklenen Event: ${props.data.eventCommand}`);
-        await console.log('');
+    return;
+  });
 
-      });
 
+  __eventsClients = new Map();
+
+  fs.readdir("./events/", async (err, files) => {
+    if (err) return console.error(err);
+    await files.forEach(async (file) => {
+      if (!file.endsWith(".js")) return;
+      let props = await require(`./events/${file}`);
+
+      await __eventsClients.set(props.data.eventCommand, props);
+      console.log(`Yüklenen Event: ${props.data.eventCommand}`);
+      return;
     });
+    return;
+  });
+
+  isLoadFinished = true;
+  return "okeee";
 }
+try {
+  taswe = loadClientBotData();
 
-(async () => {
-  try {
-    loadClientBotData();
-  } catch (error) {
-    console.error(error);
-  }
-})();
+} catch (error) {
+  console.error(error);
+}
 
 
 const rest = new REST({ version: '10' }).setToken(cConfig.Token);
@@ -100,20 +102,16 @@ client.on('interactionCreate', async interaction => {
   });
 });
 
-client.on('messageCreate', (message) => {
-  if (message.author.id == cConfig.ClientID) return;
-  if (message.author.id != "854676894675238913") return;
+var iPre = setInterval(() => {
+  if (isLoadFinished) {
+    isLoadFinished = false;
+    __eventsClients.forEach(item => {
+      console.log(`${item.data.eventName} has been registered`);
+      client.on(item.data.eventCommand, (data) => item.execute(data));
+    });
 
-  if(message.author.id == cConfig.ownerID && message.content == "!rc")
-  {
-    message.channel.send("31");
-    loadClientBotData();
-    return;
+    clearInterval(iPre);
   }
-
-  __eventsClients.forEach(item => {
-    item.data.eventCommand == "messageCreate" ? item.execute({message: message}) : "";
-  });
-});
+}, 1000);
 
 client.login(cConfig.Token);

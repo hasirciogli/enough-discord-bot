@@ -111,13 +111,6 @@ module.exports = [
     execute: (eParams) => {
         const commandInteraction = eParams.interaction;
 
-        callSql("SELECT * FROM users WHERE id = '1'", (status, data) => {
-            if (!status) return console.log(data);
-
-            console.log(data[0].discord_id);
-
-        });
-
         if (!commandInteraction.options.getString("help_method_name"))
             return commandInteraction.reply({ embeds: [getHelpBase(commandInteraction)] });
 

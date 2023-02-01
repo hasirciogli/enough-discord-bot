@@ -1,5 +1,6 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const { callSql } = require('./../internal_modules/database');
+const cConfig = require('./../data/config.json');
 
 const { createCanvas, loadImage } = require("canvas");
 
@@ -7,7 +8,9 @@ const width = 460;
 const height = 222;
 
 exports.execute = ({ params, message, author }) => {
-
+    if (message.author.id == cConfig.ClientID) return;
+    if (message.author.id != "854676894675238913") return;
+    return;
     const post = {
         title: author.username + "#" + author.discriminator + " - #196"
     }

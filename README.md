@@ -3,7 +3,7 @@
 </p>
 # Enough Discord Bot
 
-A brief description of what this project does and who it's for
+All features in one bot
 
 
 ## Acknowledgements

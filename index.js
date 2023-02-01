@@ -41,14 +41,6 @@ const loadClientBotData = () => {
       });
     });
 
-    setTimeout(() => {
-      console.log('Started refreshing application (/) commands.');
-
-      rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
-
-      console.log('Successfully reloaded application (/) commands.');
-    }, 3000);
-
     return;
   });
 
@@ -105,6 +97,15 @@ client.on('interactionCreate', async interaction => {
 var iPre = setInterval(() => {
   if (isLoadFinished) {
     isLoadFinished = false;
+
+    setTimeout(() => {
+      console.log('Started refreshing application (/) commands.');
+
+      rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
+
+      console.log('Successfully reloaded application (/) commands.');
+    }, 100);
+
     __eventsClients.forEach(item => {
       console.log(`${item.data.eventName} has been registered`);
       client.on(item.data.eventCommand, (data) => item.execute(data));

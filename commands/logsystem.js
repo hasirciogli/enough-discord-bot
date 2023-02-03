@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { callSql } = require('./../internal_modules/database');
+const { callSql, initializeServer } = require('./../internal_modules/database');
 
 module.exports = [
     {
@@ -13,6 +13,12 @@ module.exports = [
             ),
         execute: (eParams) => {
             const commandInteraction = eParams.interaction;
+
+            if (!commandInteraction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                commandInteraction.reply("You dont have permission to use that command.");
+                setTimeout(() => commandInteraction.deleteReply(), 5000);
+                return;
+            }
 
             callSql(`SELECT * FROM sw_settings WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
                 if (!err)
@@ -28,6 +34,28 @@ module.exports = [
                             else {
 
                             }
+                        });
+                    }
+                    else{
+                        initializeServer({guild: commandInteraction.guild}, (data, val) => {
+                            callSql(`SELECT * FROM sw_settings WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
+                                if (!err)
+                                    console.log(err);
+                                else {
+                                    if (data.length > 0) {
+                                        var logChannelSettings = JSON.parse(data[0].log_channel_settings);
+                                        logChannelSettings.log_channel_enabled = commandInteraction.options.getBoolean("enabled");
+                
+                                        callSql(`UPDATE sw_settings SET log_channel_settings='${JSON.stringify(logChannelSettings)}' WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
+                                            if (!err)
+                                                console.log(err);
+                                            else {
+                
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                         });
                     }
                 }
@@ -48,6 +76,12 @@ module.exports = [
         execute: (eParams) => {
             const commandInteraction = eParams.interaction;
 
+            if (!commandInteraction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                commandInteraction.reply("You dont have permission to use that command.");
+                setTimeout(() => commandInteraction.deleteReply(), 5000);
+                return;
+            }
+
             callSql(`SELECT * FROM sw_settings WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
                 if (!err)
                     console.log(err);
@@ -63,6 +97,29 @@ module.exports = [
 
                             }
                         });
+                    }
+                    else{
+                        initializeServer({guild: commandInteraction.guild}, (data, val) => {
+                            callSql(`SELECT * FROM sw_settings WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
+                                if (!err)
+                                    console.log(err);
+                                else {
+                                    if (data.length > 0) {
+                                        var logChannelSettings = JSON.parse(data[0].log_channel_settings);
+                                        logChannelSettings.log_channel_enabled = commandInteraction.options.getBoolean("enabled");
+                
+                                        callSql(`UPDATE sw_settings SET log_channel_settings='${JSON.stringify(logChannelSettings)}' WHERE server_id='${commandInteraction.guild.id}'`, (err, data) => {
+                                            if (!err)
+                                                console.log(err);
+                                            else {
+                
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        });
+                        
                     }
                 }
             });

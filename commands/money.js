@@ -102,5 +102,43 @@ module.exports = [
             });
 
         },
-    }
+    },
+    {
+        data: new SlashCommandBuilder()
+            .setName('coinpay')
+            .setDescription('view your coin balance'),
+        execute: (eParams) => {
+            const commandInteraction = eParams.interaction;
+
+            commandInteraction.reply("wait");
+            commandInteraction.deleteReply();
+
+            //.toLocaleString('en-US')
+
+            callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
+                if (!status) return console.log(data);
+
+                if (data.length <= 0) {
+                    callSql(`INSERT INTO users (discord_id, ecoin, ecash) VALUES ("${commandInteraction.member.user.id}", "0.025685", "250.15")`, (status, data) => {
+                        if (!status) return console.log(data);
+
+                        callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
+                            if (!status || data.length <= 0) return console.log(data);
+
+                            commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecoin + "**__ **enough coin**");
+
+                        });
+
+                    });
+                    return;
+                }
+                else {
+                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecoin + "**__ **enough coin**");
+                }
+
+
+            });
+
+        },
+    },
 ];

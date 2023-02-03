@@ -12,12 +12,17 @@ exports.callSql = (sql, callBack) => {
 
     connection.connect((err) => {
 
-        if (err) callBack(false, err);
+        if (err) {
+            callBack(false, err)
+            connection.end();
+        }
         else {
             connection.query(sql, function (err, result, fields) {
                 if (err) callBack(false, err);
                 else
                     callBack(true, result);
+
+                connection.end();
             });
         }
 

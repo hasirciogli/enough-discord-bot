@@ -71,7 +71,7 @@ try {
 }
 
 
-const rest = new REST({ version: '10' }).setToken(cConfig.Token);
+const rest = new REST({ version: '10' }).setToken(cConfig.TToken);
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -81,7 +81,7 @@ client.on('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (!interaction.guild.members.cache.get("1069311371579248650").permissions.has(PermissionFlagsBits.Administrator)) {
+  if (!interaction.guild.members.cache.get(cConfig.TClientID).permissions.has(PermissionFlagsBits.Administrator)) {
     interaction.reply("Bot Need an Administrator Permission!");
     setTimeout(() => interaction.deleteReply(), 5000);
     return;
@@ -101,7 +101,7 @@ var iPre = setInterval(() => {
     setTimeout(() => {
       console.log('Started refreshing application (/) commands.');
 
-      rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
+      rest.put(Routes.applicationCommands(cConfig.TClientID), { body: __commands });
 
       console.log('Successfully reloaded application (/) commands.');
     }, 100);
@@ -115,4 +115,4 @@ var iPre = setInterval(() => {
   }
 }, 1000);
 
-client.login(cConfig.Token);
+client.login(cConfig.TToken);

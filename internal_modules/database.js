@@ -1,13 +1,15 @@
 var mysql = require('mysql');
+var cConfig = require('./../data/config.json');
 
 
 
 exports.callSql = (sql, callBack) => {
     var connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '',
-        database: 'enough_bot'
+        host: cConfig.mysql_host,
+        port: cConfig.mysql_port,
+        user: cConfig.mysql_user,
+        password: cConfig.mysql_password,
+        database: cConfig.mysql_database
     });
 
     connection.connect((err) => {

@@ -60,25 +60,56 @@ exports.initializeServer = (bData, callBack) => {
     });
 }
 
-exports.initializeUser = (data) => {
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '',
-        database: 'enough_bot'
-    });
-
-    connection.connect((err) => {
-
-        if (err) callBack(false, err);
-        else {
-            connection.query(sql, function (err, result, fields) {
-                if (err) callBack(false, err);
-                else
-                    callBack(true, result);
-            });
+exports.initializeUser = (user_id, callBack) => {
+    this.callSql(`SELECT * FROM users WHERE discord_id="${user_id}"`, (status, data) => {
+        if (!status) {
+            callBack(false, data);
         }
+        else {
+            if (data.length <= 0) {
 
+                callSql(`INSERT INTO users (discord_id, ecoin, ecash) VALUES ("${user_id}", "0.025685", "250.15")`, (status, data) => {
+                    if (!status) return console.log(data);
 
+                    callBack(true, "");
+                });
+            }
+            else {
+                callBack(true, "");
+            }
+        }
+    });
+}
+
+exports.cocug = (user_id, callBack) => {
+    this.callSql(`SELECT * FROM users WHERE discord_id="${user_id}"`, (status, data) => {
+        if (!status) {
+            callBack(false, "err");
+        }
+        else {
+            if (data.length <= 0) {
+
+                this.callSql(`INSERT INTO users (discord_id, ecoin, ecash) VALUES ("${user_id}", "0.025685", "250.15")`, (status, data) => {
+                    if (!status) return callBack(false, "err");
+
+                    this.callSql(`SELECT * FROM users WHERE discord_id="${user_id}"`, (status, data) => {
+                        if (!status) {
+                            callBack(false, "err");
+                        }
+                        else {
+                            if (data.length > 0) {
+                                callBack(true, data);
+                            }
+                            else{
+                                callBack(false, "err");
+                            }
+                        }
+                    });
+                });
+            }
+            else {
+                callBack(true, data);
+            }
+        }
     });
 }

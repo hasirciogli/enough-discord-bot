@@ -1,8 +1,50 @@
-var mysql = require('mysql');
+//var mysql = require('mysql');
+const { MongoClient, Decimal128 } = require('mongodb');
 var cConfig = require('./../data/config.json');
 
 
+exports.getMongoDB = async () => {
+    const uri = cConfig.mongodb_url;
 
+    const client = new MongoClient(uri);
+
+    await client.connect();
+
+    return await client;
+
+    try {
+        // Connect to the MongoDB cluster
+
+
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
+exports.createListing = async (client, db, collection, newListing, callBack) => {
+    const result = await client.db(db).collection(collection).insertOne(newListing);
+
+    if (result) {
+        await callBack(true, result);
+    } else {
+        await callBack(false, result);
+    }
+}
+
+exports.findOneListingBy_Id = async (client, db, collection, _id, callBack) => {
+    const result = await client.db(db).collection(collection).findOne({ _id: _id });
+
+    if (result) {
+        await callBack(true, result);
+    } else {
+        await callBack(false, result);
+    }
+}
+
+/*
 exports.callSql = (sql, callBack) => {
     var connection = mysql.createConnection({
         host: cConfig.mysql_host,
@@ -100,7 +142,7 @@ exports.cocug = (user_id, callBack) => {
                             if (data.length > 0) {
                                 callBack(true, data);
                             }
-                            else{
+                            else {
                                 callBack(false, "err");
                             }
                         }
@@ -112,4 +154,120 @@ exports.cocug = (user_id, callBack) => {
             }
         }
     });
+}
+*/
+
+const initializeNewUser = async () => { }
+
+
+
+exports.getUser = async (user_id, createIfDostNotExists, callBack) => {
+    const cl = await this.getMongoDB()
+
+    await this.findOneListingBy_Id(cl, "ebot", "users", user_id, async (status, result) => {
+        if (!status) {
+
+            if (createIfDostNotExists) {
+                await this.createListing(cl, "ebot", "users", {
+                    _id: user_id,
+                    "date": Date.now(),
+                    ecash: 2567899,
+                    ecoin: new Decimal128("0.00000"),
+                    lol: "xd",
+                },
+                    async (status, res) => {
+                        if (!status) {
+                            callBack(false, res);
+                        }
+                        else {
+                            await this.findOneListingBy_Id(cl, "ebot", "users", user_id, async (status, result) => {
+                                if (!status) {
+                                    callBack(false, result);
+                                } else {
+                                    callBack(true, result);
+                                }
+                            });
+                        }
+                    });
+            }
+            else {
+                callBack(false, result);
+            }
+        } else {
+            callBack(true, result);
+        }
+    });
+
+
+    try {
+        await cl.close();
+    } catch (e) {
+        console.error("l -> close err" + e);
+    }
+}
+
+exports.getServer = async (server_id, createIfDostNotExists, callBack) => {
+    const cl = await this.getMongoDB()
+
+    await this.findOneListingBy_Id(cl, "ebot", "sw_settings", server_id, async (status, result) => {
+        if (!status) {
+
+            if (createIfDostNotExists) {
+                await this.createListing(cl, "ebot", "sw_settings", {
+                    _id: server_id,
+                    prefix: "!",
+                    status: 1,
+                    log_channel_settings: {
+                        log_channel_id: "",
+                        log_channel_enabled: false,
+                    }
+                },
+                    async (status, res) => {
+                        if (!status) {
+                            callBack(false, res);
+                        }
+                        else {
+                            await this.findOneListingBy_Id(cl, "ebot", "sw_settings", server_id, async (status, result) => {
+                                if (!status) {
+                                    callBack(false, result);
+                                } else {
+                                    callBack(true, result);
+                                }
+                            });
+                        }
+                    });
+            }
+            else {
+                callBack(false, result);
+            }
+        } else {
+            callBack(true, result);
+        }
+    });
+
+
+    try {
+        await cl.close();
+    } catch (e) {
+        console.error("l -> close err" + e);
+    }
+}
+
+
+exports.updateSomethink = async (db, collection, query, inc, set, callBack) => {
+    const cl = await this.getMongoDB();
+
+    const result = await cl.db(db).collection(collection).updateOne(query, { $inc: inc, $set: set });
+
+    if (result) {
+        await callBack(true, result);
+    } else {
+        await callBack(false, result);
+    }
+
+    try {
+        await cl.close();
+    } catch (e) {
+        console.error("l -> close err" + e);
+    }
 }

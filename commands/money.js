@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, SlashCommandBuilder } = require('discord.js');
-const { callSql, cocug } = require('./../internal_modules/database');
+const { getUser, updateSomethink } = require('./../internal_modules/database');
 
 const ___intToString = (num) => {
     num = num.toString().replace(/[^0-9.]/g, '');
@@ -36,34 +36,17 @@ module.exports = [
 
             //.toLocaleString('en-US')
 
-            callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
-                if (!status) return console.log(data);
-
-                if (data.length <= 0) {
-                    callSql(`INSERT INTO users (discord_id, ecoin, ecash) VALUES ("${commandInteraction.member.user.id}", "0.025685", "250.15")`, (status, data) => {
-                        if (!status) return console.log(data);
-
-                        callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
-                            if (!status || data.length <= 0) return console.log(data);
-
-                            commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecoin + "**__ **enough coin**");
-
-                        });
-
-                    });
-                    return;
+            getUser(commandInteraction.user.id, true, async (status1, res1) => {
+                if (status1) {
+                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + res1.ecoin + "**__ **coin**");
                 }
                 else {
-                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecoin + "**__ **enough coin**");
+                    commandInteraction.channel.send("internal error try again...");
                 }
-
-
             });
 
         },
     },
-
-
 
     {
         data: new SlashCommandBuilder()
@@ -75,32 +58,16 @@ module.exports = [
             commandInteraction.reply("wait");
             commandInteraction.deleteReply();
 
-            //.toLocaleString('en-US')
+                //.toLocaleString('en-US')
 
-            callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
-                if (!status) return console.log(data);
-
-                if (data.length <= 0) {
-                    callSql(`INSERT INTO users (discord_id, ecoin, ecash) VALUES ("${commandInteraction.member.user.id}", "0.025685", "250.15")`, (status, data) => {
-                        if (!status) return console.log(data);
-
-                        callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, data) => {
-                            if (!status || data.length <= 0) return console.log(data);
-
-                            commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecash + "$**__ **cash**");
-
-                        });
-
-                    });
-                    return;
+            getUser(commandInteraction.user.id, true, async (status1, res1) => {
+                if (status1) {
+                    await commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + res1.ecash + "$**__ **cash**");
                 }
                 else {
-                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + data[0].ecash + "$**__ **cash**");
+                    await commandInteraction.channel.send("internal error try again...");
                 }
-
-
             });
-
         },
     },
     {
@@ -130,49 +97,40 @@ module.exports = [
                 //commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You are currently have __**" + data[0].ecoin + "**__ **enough coin**");
             };
 
+            if (mentionedNumber <= 0) {
+                commandInteraction.channel.send(":)");
+                return;
+            }
+
             var mentionedMember = commandInteraction.options.getMember("user");
             var mentionedNumber = commandInteraction.options.getNumber("how_many");
 
-            cocug(commandInteraction.member.user.id, (status, ci) => {
-                if (!status) return sucFail(data, 1);
-                ci = ci[0];
-
-                var nDiff = (parseFloat(ci.ecoin) - parseFloat(mentionedNumber));
-
-                if  (nDiff <= 0){
-                    return commandInteraction.channel.send(`You dont have ${mentionedNumber} enough coin`);
-                }
-                else{
-
-                    cocug(mentionedMember.user.id, (status, mu) => {
-                        if (!status) return sucFail(data, 2);
-    
-                        mu = mu[0];
-    
-                        var nAdd = (parseFloat(mu.ecoin) + parseFloat(mentionedNumber));
-                        var nDiff = (parseFloat(ci.ecoin) - parseFloat(mentionedNumber));
-    
-                        callSql(`UPDATE users SET ecoin = "` + nDiff + `" WHERE discord_id="` + commandInteraction.member.user.id + `"`, (status, data) => {
-                            if (!status) return sucFail(data, 3);
-    
-                            callSql(`UPDATE users SET ecoin = "` + nAdd + `" WHERE discord_id="` + mu.discord_id + `"`, (status, data) => {
-                                if (!status) return sucFail(data, 4);
-    
-                                callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, datax) => {
-                                    if (!status || data.length <= 0) return sucFail(data, 5);
-    
-                                    sucSend(mentionedNumber, datax[0].ecoin);
-    
+            getUser(commandInteraction.user.id, true, async (status1, res1) => {
+                if (status1) {
+                    if (res1.ecoin >= mentionedNumber) {
+                        getUser(mentionedMember.id, true, async (status2, res2) => {
+                            if (status2) {
+                                updateSomethink("ebot", "users", { _id: commandInteraction.user.id }, { "ecoin": -(mentionedNumber) }, {}, async (status3, res3) => {
+                                    if (!status3)
+                                        sucFail();
+                                    else {
+                                        updateSomethink("ebot", "users", { _id: mentionedMember.id }, { "ecoin": -(mentionedNumber) }, {}, async (status4, res4) => {
+                                            if (!status4)
+                                                sucFail();
+                                            else {
+                                                sucSend(mentionedMember, res1.ecoin - mentionedNumber);
+                                            }
+                                        });
+                                    }
                                 });
-    
-                            });
-    
+                            }
                         });
-                    });
-                }
-                
-                
+                    }
+                    else {
+                        commandInteraction.channel.send("you dont have "+ mentionedNumber + "ecoin");
 
+                    }
+                }
             });
 
         },
@@ -207,46 +165,37 @@ module.exports = [
             var mentionedMember = commandInteraction.options.getMember("user");
             var mentionedNumber = commandInteraction.options.getNumber("how_many");
 
-            cocug(commandInteraction.member.user.id, (status, ci) => {
-                if (!status) return sucFail(data, 1);
-                ci = ci[0];
+            if (mentionedNumber <= 0) {
+                commandInteraction.channel.send(":)");
+                return;
+            }
 
-                var nDiff = (parseFloat(ci.ecash) - parseFloat(mentionedNumber));
-
-                if  (nDiff <= 0){
-                    return commandInteraction.channel.send(`You dont have ${mentionedNumber} enough cash`);
-                }
-                else{
-
-                    cocug(mentionedMember.id, (status, mu) => {
-                        if (!status) return sucFail(data, 2);
-    
-                        mu = mu[0];
-    
-                        var nAdd = (parseFloat(mu.ecash) + parseFloat(mentionedNumber));
-                        var nDiff = (parseFloat(ci.ecash) - parseFloat(mentionedNumber));
-    
-                        callSql(`UPDATE users SET ecash = "` + nDiff + `" WHERE discord_id="` + commandInteraction.member.user.id + `"`, (status, data) => {
-                            if (!status) return sucFail(data, 3);
-    
-                            callSql(`UPDATE users SET ecash = "` + nAdd + `" WHERE discord_id="` + mu.discord_id + `"`, (status, data) => {
-                                if (!status) return sucFail(data, 4);
-    
-                                callSql(`SELECT * FROM users WHERE discord_id = "${commandInteraction.member.user.id}"`, (status, datax) => {
-                                    if (!status || data.length <= 0) return sucFail(data, 5);
-    
-                                    sucSend(mentionedNumber, datax[0].ecash);
-    
+            getUser(commandInteraction.user.id, true, async (status1, res1) => {
+                if (status1) {
+                    if (res1.ecash >= mentionedNumber) {
+                        getUser(mentionedMember.id, true, async (status2, res2) => {
+                            if (status2) {
+                                updateSomethink("ebot", "users", { _id: commandInteraction.user.id }, { "ecash": -(mentionedNumber) }, {}, async (status3, res) => {
+                                    if (!status3)
+                                        sucFail();
+                                    else {
+                                        updateSomethink("ebot", "users", { _id: mentionedMember.id }, { "ecash": (mentionedNumber) }, {}, async (status4, res) => {
+                                            if (!status4)
+                                                sucFail();
+                                            else {
+                                                sucSend(mentionedMember, res1.ecash - mentionedNumber);
+                                            }
+                                        });
+                                    }
                                 });
-    
-                            });
-    
+                            }
                         });
-                    });
-                }
-                
-                
+                    }
+                    else {
+                        commandInteraction.channel.send("you dont have "+ mentionedNumber + "ecash");
 
+                    }
+                }
             });
 
         },

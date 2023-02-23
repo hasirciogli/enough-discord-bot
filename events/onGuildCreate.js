@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, EmbedBuilder } = require('discord.js');
-const { callSql, initializeServer } = require('./../internal_modules/database');
+const { getServer } = require('./../internal_modules/database');
 
 module.exports = {
     data: {
@@ -8,6 +8,6 @@ module.exports = {
     },
 
     execute: (data) => {
-        initializeServer({guild: data}, (data, val) => {/*console.log(data + "\n" + val)*/});
+        getServer(data.guild.id, true, async (status, res) => {});
     }
 };

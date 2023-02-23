@@ -11,7 +11,6 @@ const getHelpBase = (commandInteraction) => {
         .setDescription('List or review all commands.')
         .setThumbnail(commandInteraction.member.user.avatarURL({}))
         .addFields(
-            { name: '**security**', value: '`/help security`' },
             { name: 'fun', value: '`/help fun`' },
             { name: 'economy', value: "`/help economy`" },
             /*{ name: '\u200B', value: '\u200B' },
@@ -27,28 +26,6 @@ const getHelpBase = (commandInteraction) => {
 const helpEmbeds = (commandInteraction) => {
 
     return {
-        securityc: new EmbedBuilder({})
-            .setColor([20, 130, 20])
-            .setTitle('Enough Help!')
-            .setURL('https://discord.com/api/oauth2/authorize?client_id=1069311371579248650&permissions=8&scope=bot')
-            .setAuthor({ name: commandInteraction.member.displayName, iconURL: commandInteraction.member.user.avatarURL({}), url: 'https://discord.com/api/oauth2/authorize?client_id=1069311371579248650&permissions=8&scope=bot' })
-            .setDescription('List or review all Security Commands.')
-            .setThumbnail(commandInteraction.member.user.avatarURL({}))
-            .addFields(
-                { name: '**Set Log Channel**', value: '`/setlogchannel <Channel Mention>`' },
-                { name: '**Set Log Enabled**', value: '`/setlogenabled`' },
-                /*{ name: '\u200B', value: '\u200B' },
-                { name: 'Inline field title', value: 'Some value here', inline: true },
-                { name: 'Inline field title', value: 'Some value here', inline: true },*/
-            )
-            //.addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
-            //.setImage('https://i.imgur.com/AfFp7pu.png')
-            .setTimestamp()
-            .setFooter({ text: 'Help for commandlist', iconURL: commandInteraction.member.user.avatarURL({}) }),
-
-
-
-
         func: new EmbedBuilder({})
             .setColor([20, 130, 20])
             .setTitle('Enough Help!')
@@ -57,9 +34,11 @@ const helpEmbeds = (commandInteraction) => {
             .setDescription('List or review all commands.')
             .setThumbnail(commandInteraction.member.user.avatarURL({}))
             .addFields(
-                { name: '**security**', value: '`/help security`' },
-                { name: 'fun', value: '`/help fun`' },
-                { name: 'economy', value: "`/help economy`" },
+                { name: 'meme', value: '`/make meme`' },
+                { name: 'gif', value: "`/make gif`" },
+                { name: 'sigma', value: "`/make sigma`" },
+                { name: 'turkish', value: "`/make turkish joke`" },
+                { name: 'english', value: "`/make english joke`" },
                 /*{ name: '\u200B', value: '\u200B' },
                 { name: 'Inline field title', value: 'Some value here', inline: true },
                 { name: 'Inline field title', value: 'Some value here', inline: true },*/
@@ -78,9 +57,8 @@ const helpEmbeds = (commandInteraction) => {
             .setDescription('List or review all commands.')
             .setThumbnail(commandInteraction.member.user.avatarURL({}))
             .addFields(
-                { name: '**security**', value: '`/help security`' },
-                { name: 'fun', value: '`/help fun`' },
-                { name: 'economy', value: "`/help economy`" },
+                { name: 'In App Cash', value: "`/cash` and `/cashpay <user> <amount>`" },
+                { name: 'Real EToken', value: "`/coin` and `/coinpay <user> <amount>`" },
                 /*{ name: '\u200B', value: '\u200B' },
                 { name: 'Inline field title', value: 'Some value here', inline: true },
                 { name: 'Inline field title', value: 'Some value here', inline: true },*/
@@ -97,13 +75,12 @@ module.exports = [
     {
         data: new SlashCommandBuilder()
         .setName('help')
-        .setDescription('Clear all messages from the chat')
+        .setDescription('Give about help commands')
         .addStringOption(option =>
             option.setName('help_method_name')
                 .setDescription('help-method-name')
                 .setRequired(false)
                 .addChoices(
-                    { name: 'Security Commands', value: 'securityc' },
                     { name: 'Fun Commands', value: 'func' },
                     { name: 'Economy Commands', value: 'economyc' },
                 )

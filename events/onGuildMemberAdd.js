@@ -1,4 +1,4 @@
-const { callSql } = require('./../internal_modules/database');
+const { callSql, getUser } = require('./../internal_modules/database');
 const { onMemberJoin } = require('./../customfeatures/serverLogs');
 
 module.exports = {
@@ -8,6 +8,7 @@ module.exports = {
     },
 
     execute: (data) => {
-        onMemberJoin({member: data});
+        getUser(data.user.id, true, async (status, res) => { });
+        onMemberJoin({ member: data });
     }
 };

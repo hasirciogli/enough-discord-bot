@@ -16,6 +16,13 @@ const fs = require("fs");
 const cConfig = require('./data/config.json');
 
 
+const clconsole = async () => {
+  await console.clear();
+}
+
+//clconsole();
+
+
 var __commands = [];
 var isLoadFinished = false;
 var __eventsClients = new Map();
@@ -27,6 +34,7 @@ const loadClientBotData = () => {
   fs.readdir("./commands/", async (err, files) => {
     if (err) return console.error(err);
     await files.forEach(async (file) => {
+      if(file.startsWith("-")) return;
       if (!file.endsWith(".js")) return;
       let props = await require(`./commands/${file}`);
 

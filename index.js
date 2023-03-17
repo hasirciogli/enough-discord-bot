@@ -89,8 +89,8 @@ client.on('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (!interaction.guild.members.cache.get(cConfig.TClientID).permissions.has(PermissionFlagsBits.Administrator)) {
-    interaction.reply("Bot Need an Administrator Permission!");
+  if (!interaction.guild.members.cache.get(cConfig.TClientID).permissions.has(PermissionFlagsBits.SendMessages || PermissionFlagsBits.ReadMessageHistory || PermissionFlagsBits.ManageMessages)) {
+    interaction.reply("Bot Need an send messages, read msg history, manage members Permission!");
     setTimeout(() => interaction.deleteReply(), 5000);
     return;
   }

@@ -159,7 +159,25 @@ exports.cocug = (user_id, callBack) => {
 
 const initializeNewUser = async () => { }
 
+exports.tFormant = (number) => {
+    if(true)
+    {
+        number = String(number);
+        x = number.split('.');
+        x1 = x[0];
+        x2 = x.length > 1 ? '.' + x[1].slice(0, 3) : '.00';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        var li = x1 + x2;
+        var piece = String(li);
+        return li;
+    }
+    number = String(number);
+    return number.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2, fractionalSecondDigits: 2 });
 
+}
 
 exports.getUser = async (user_id, createIfDostNotExists, callBack) => {
     const cl = await this.getMongoDB()
@@ -171,9 +189,14 @@ exports.getUser = async (user_id, createIfDostNotExists, callBack) => {
                 await this.createListing(cl, "ebot", "users", {
                     _id: user_id,
                     "date": Date.now(),
-                    ecash: 2567899,
-                    ecoin: new Decimal128("0.00000"),
+                    ecash: new Decimal128("200.00"),
+                    ecoin: new Decimal128("0.00"),
                     lol: "xd",
+                    casino: {
+                        rates: {
+                            cf_winrate: 50,
+                        }
+                    }
                 },
                     async (status, res) => {
                         if (!status) {

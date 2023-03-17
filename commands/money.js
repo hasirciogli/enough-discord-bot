@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, SlashCommandBuilder } = require('discord.js');
-const { getUser, updateSomethink } = require('./../internal_modules/database');
+const { getUser, updateSomethink, tFormant } = require('./../internal_modules/database');
 
 const ___intToString = (num) => {
     num = num.toString().replace(/[^0-9.]/g, '');
@@ -38,7 +38,7 @@ module.exports = [
 
             getUser(commandInteraction.user.id, true, async (status1, res1) => {
                 if (status1) {
-                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + res1.ecoin + "**__ **coin**");
+                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + tFormant(res1.ecoin) + "**__ **coin**");
                 }
                 else {
                     commandInteraction.channel.send("internal error try again...");
@@ -47,7 +47,6 @@ module.exports = [
 
         },
     },
-
     {
         data: new SlashCommandBuilder()
             .setName('cash')
@@ -62,7 +61,7 @@ module.exports = [
 
             getUser(commandInteraction.user.id, true, async (status1, res1) => {
                 if (status1) {
-                    await commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + res1.ecash + "$**__ **cash**");
+                    await commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + (tFormant(res1.ecash)) + "$**__ **cash**");
                 }
                 else {
                     await commandInteraction.channel.send("internal error try again...");
@@ -70,6 +69,8 @@ module.exports = [
             });
         },
     },
+
+    
     {
         data: new SlashCommandBuilder()
             .setName('coinpay')
@@ -87,12 +88,12 @@ module.exports = [
             commandInteraction.deleteReply();
 
             const sucSend = (send, ret) => {
+                ret = tFormant(ret);
                 commandInteraction.channel.send(`Successfully sent ${send} coin to mentioned user, So You are currently have __**${ret}**__ **enough coin**`);
                 //commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You are currently have __**" + data[0].ecoin + "**__ **enough coin**");
             };
 
             const sucFail = (num = 0) => {
-                console.log(num)
                 commandInteraction.channel.send(`500 Internal Server Error please try again later (Propably fixed 20 minute later)`);
                 //commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You are currently have __**" + data[0].ecoin + "**__ **enough coin**");
             };
@@ -127,7 +128,7 @@ module.exports = [
                         });
                     }
                     else {
-                        commandInteraction.channel.send("you dont have "+ mentionedNumber + "ecoin");
+                        commandInteraction.channel.send("you dont have "+ tFormant(mentionedNumber) + "ecoin");
 
                     }
                 }
@@ -152,6 +153,7 @@ module.exports = [
             commandInteraction.deleteReply();
 
             const sucSend = (send, ret) => {
+                ret = tFormant(ret);
                 commandInteraction.channel.send(`Successfully sent ${send} ecash to mentioned user, So You are currently have __**${ret}**__ **enough cash**`);
                 //commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You are currently have __**" + data[0].ecash + "**__ **enough coin**");
             };
@@ -192,7 +194,7 @@ module.exports = [
                         });
                     }
                     else {
-                        commandInteraction.channel.send("you dont have "+ mentionedNumber + "ecash");
+                        commandInteraction.channel.send("you dont have "+ tFormant(mentionedNumber) + "ecash");
 
                     }
                 }

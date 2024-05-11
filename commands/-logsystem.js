@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { callSql, initializeServer, updateSomethink, getServer } = require('./../internal_modules/database');
 
 module.exports = [
     {
@@ -24,21 +23,21 @@ module.exports = [
                 return;
             }
 
-            getServer(commandInteraction.guild.id, true, async(status, res) => {
-                if (!status)
-                    commandInteraction.channel.send("Update Failed...");
-                else {
-                    var new_log_channel_id = commandInteraction.options.getChannel("log_channel").id.toString();
+            // getServer(commandInteraction.guild.id, true, async(status, res) => {
+            //     if (!status)
+            //         commandInteraction.channel.send("Update Failed...");
+            //     else {
+            //         var new_log_channel_id = commandInteraction.options.getChannel("log_channel").id.toString();
 
-                    updateSomethink("ebot", "sw_settings", {_id: commandInteraction.guild.id}, {}, { "log_channel_settings.log_channel_id": new_log_channel_id }, async(status, res) => {
-                        if (!status)
-                            commandInteraction.channel.send("Update Failed...");
-                        else {
-                            commandInteraction.channel.send("Updated!");
-                        }
-                    });
-                }
-            });
+            //         updateSomethink("ebot", "sw_settings", {_id: commandInteraction.guild.id}, {}, { "log_channel_settings.log_channel_id": new_log_channel_id }, async(status, res) => {
+            //             if (!status)
+            //                 commandInteraction.channel.send("Update Failed...");
+            //             else {
+            //                 commandInteraction.channel.send("Updated!");
+            //             }
+            //         });
+            //     }
+            // });
         },
     },
     {

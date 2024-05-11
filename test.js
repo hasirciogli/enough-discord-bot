@@ -1,4 +1,3 @@
-const { MongoClient } = require('mongodb');
 const cConfig = require('./data/config.json');
 
 async function listDatabases(client) {

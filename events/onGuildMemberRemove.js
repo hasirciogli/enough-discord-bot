@@ -1,4 +1,3 @@
-const { callSql } = require('./../internal_modules/database');
 const { onMemberLeft } = require('./../customfeatures/serverLogs');
 
 module.exports = {

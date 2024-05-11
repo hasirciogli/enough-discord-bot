@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const { callSql } = require('./../internal_modules/database');
 const cConfig = require('./../data/config.json');
 
 const { createCanvas, loadImage } = require("canvas");

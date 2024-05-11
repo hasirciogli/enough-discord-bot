@@ -10,86 +10,72 @@ const client = new Client({
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildInvites,
-    GatewayIntentBits.MessageContent,]
+    GatewayIntentBits.MessageContent,
+  ]
 });
 const fs = require("fs");
 const cConfig = require('./data/config.json');
+const { readdir } = require('fs').promises;
 
 
-const clconsole = async () => {
-  await console.clear();
-}
-
-//clconsole();
-
+const rest = new REST({ version: '10' }).setToken(cConfig.Token);
 
 var __commands = [];
-var isLoadFinished = false;
 var __eventsClients = new Map();
 
-
 const loadClientBotData = () => {
-  __commands = [];
+  new Promise(async (yes, no) => {
+    try {
+      const commandFiles = await readdir("./commands/");
+      for (const file of commandFiles) {
+        if (file.startsWith("-") || !file.endsWith(".js")) continue;
+        const commands = require(`./commands/${file}`);
+        commands.forEach(command => {
+          console.log(`Yüklenen komut: ${command.data.name}`);
+          var vData = command.data;
+          vData.execute = command.execute;
+          __commands.push(vData);
+        });
+      }
 
-  fs.readdir("./commands/", async (err, files) => {
-    if (err) return console.error(err);
-    await files.forEach(async (file) => {
-      if(file.startsWith("-")) return;
-      if (!file.endsWith(".js")) return;
-      let props = await require(`./commands/${file}`);
+      const eventFiles = await readdir("./events/");
+      for (const file of eventFiles) {
+        if (!file.endsWith(".js")) continue;
+        const event = require(`./events/${file}`);
+        if (!__eventsClients.has(event.data.eventCommand)) {
+          __eventsClients.set(event.data.eventCommand, event);
+          console.log(`Yüklenen Event: ${event.data.eventCommand}`);
+        }
+      }
 
-      await props.forEach(async (command) => {
-        console.log(`Yüklenen komut: ${command.data.name}`);
+      console.log('Started refreshing application (/) commands.');
+      await rest.put(Routes.applicationCommands(cConfig.ClientID), { body: __commands });
+      console.log('Successfully reloaded application (/) commands.');
 
-        var vData = command.data;
-        vData.execute = command.execute;
-
-        await __commands.push(vData);
-        return;
+      client.removeAllListeners();
+      __eventsClients.forEach(item => {
+        console.log(`${item.data.eventName} has been registered`);
+        client.on(item.data.eventCommand, (data) => item.execute(data));
       });
-    });
+    } catch (error) {
+      console.error('An error occurred while loading client bot data:', error);
+    }
 
-    return;
+    yes(true);
   });
+};
 
-
-  __eventsClients = new Map();
-
-  fs.readdir("./events/", async (err, files) => {
-    if (err) return console.error(err);
-    await files.forEach(async (file) => {
-      if (!file.endsWith(".js")) return;
-      let props = await require(`./events/${file}`);
-
-      await __eventsClients.set(props.data.eventCommand, props);
-      console.log(`Yüklenen Event: ${props.data.eventCommand}`);
-      return;
-    });
-    return;
-  });
-
-  isLoadFinished = true;
-  return "okeee";
-}
-try {
-  taswe = loadClientBotData();
-
-} catch (error) {
-  console.error(error);
-}
-
-
-const rest = new REST({ version: '10' }).setToken(cConfig.TToken);
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
   console.log('');
+  loadClientBotData();
 });
 
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-  if (!interaction.guild.members.cache.get(cConfig.TClientID).permissions.has(PermissionFlagsBits.SendMessages || PermissionFlagsBits.ReadMessageHistory || PermissionFlagsBits.ManageMessages)) {
+  if (!interaction.guild.members.cache.get(cConfig.ClientID).permissions.has(PermissionFlagsBits.SendMessages || PermissionFlagsBits.ReadMessageHistory || PermissionFlagsBits.ManageMessages)) {
     interaction.reply("Bot Need an send messages, read msg history, manage members Permission!");
     setTimeout(() => interaction.deleteReply(), 5000);
     return;
@@ -102,25 +88,4 @@ client.on('interactionCreate', async interaction => {
   });
 });
 
-var iPre = setInterval(() => {
-  if (isLoadFinished) {
-    isLoadFinished = false;
-
-    setTimeout(() => {
-      console.log('Started refreshing application (/) commands.');
-
-      rest.put(Routes.applicationCommands(cConfig.TClientID), { body: __commands });
-
-      console.log('Successfully reloaded application (/) commands.');
-    }, 100);
-
-    __eventsClients.forEach(item => {
-      console.log(`${item.data.eventName} has been registered`);
-      client.on(item.data.eventCommand, (data) => item.execute(data));
-    });
-
-    clearInterval(iPre);
-  }
-}, 1000);
-
-client.login(cConfig.TToken);
+client.login(cConfig.Token);

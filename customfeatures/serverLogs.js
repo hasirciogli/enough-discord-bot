@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const { getServer } = require('./../internal_modules/database');
 const { ClientID } = require('./../data/config.json');
 
 exports.onMemberJoin = ({ member }) => {

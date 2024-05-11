@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } = require('discord.js');
-const { callSql } = require('./../internal_modules/database');
 
 
 module.exports = [

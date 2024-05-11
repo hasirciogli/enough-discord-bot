@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { callSql } = require('./../internal_modules/database');
 
 
 const getHelpBase = (commandInteraction) => {

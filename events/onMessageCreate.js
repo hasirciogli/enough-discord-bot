@@ -1,5 +1,4 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { findOneListingBy_Id, getUser, getServer } = require('./../internal_modules/database');
 const cConfig = require('./../data/config.json');
 const levelSystem = require('./../customfeatures/levelsystem');
 
@@ -9,7 +8,7 @@ module.exports = {
         eventCommand: "messageCreate",
     },
     execute: (data) => {
-        if (data.author.id == cConfig.TClientID)
+        if (data.author.id == cConfig.ClientID)
             return;
 
         levelSystem.execute({

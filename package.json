@@ -1,7 +1,27 @@
 {
+  "name": "enough-discord-bot",
+  "version": "1.0.0",
+  "description": "powerfull discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hasirciogli/enough-discord-bot.git"
+  },
+  "author": "hasirciogli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hasirciogli/enough-discord-bot/issues"
+  },
+  "homepage": "https://github.com/hasirciogli/enough-discord-bot#readme",
   "dependencies": {
-    "canvas": "^2.11.0",
-    "discord.js": "^14.7.1",
-    "mongodb": "^5.0.1"
+    "@prisma/client": "^5.13.0",
+    "canvas": "^2.11.2",
+    "chokidar": "^3.6.0",
+    "discord.js": "^14.15.2",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.13.0"
   }
 }

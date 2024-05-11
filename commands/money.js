@@ -1,5 +1,5 @@
 const { PermissionFlagsBits, SlashCommandBuilder } = require('discord.js');
-const { getUser, updateSomethink, tFormant } = require('./../internal_modules/database');
+const { getUser, addCoin, removeCoin } = require('../utils/user');
 
 const ___intToString = (num) => {
     num = num.toString().replace(/[^0-9.]/g, '');
@@ -28,7 +28,7 @@ module.exports = [
         data: new SlashCommandBuilder()
             .setName('coin')
             .setDescription('view your coin balance'),
-        execute: (eParams) => {
+        execute: async (eParams) => {
             const commandInteraction = eParams.interaction;
 
             commandInteraction.reply("wait");
@@ -36,14 +36,14 @@ module.exports = [
 
             //.toLocaleString('en-US')
 
-            getUser(commandInteraction.user.id, true, async (status1, res1) => {
-                if (status1) {
-                    commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + tFormant(res1.ecoin) + "**__ **coin**");
-                }
-                else {
-                    commandInteraction.channel.send("internal error try again...");
-                }
-            });
+            var { user, err } = await getUser(commandInteraction.user.id);
+
+            if (!err) {
+                commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You currently have __**" + user.coin.toLocaleString("tr-TR") + "**__ **coin**");
+            }
+            else {
+                commandInteraction.channel.send("internal error try again...");
+            }
 
         },
     },
@@ -57,7 +57,7 @@ module.exports = [
             commandInteraction.reply("wait");
             commandInteraction.deleteReply();
 
-                //.toLocaleString('en-US')
+            //.toLocaleString('en-US')
 
             getUser(commandInteraction.user.id, true, async (status1, res1) => {
                 if (status1) {
@@ -70,7 +70,7 @@ module.exports = [
         },
     },
 
-    
+
     {
         data: new SlashCommandBuilder()
             .setName('coinpay')
@@ -81,14 +81,14 @@ module.exports = [
             .addNumberOption(option =>
                 option.setName('how_many').setDescription('How many ?').setRequired(true),
             ),
-        execute: (eParams) => {
+        execute: async (eParams) => {
             const commandInteraction = eParams.interaction;
 
             commandInteraction.reply("wait");
             commandInteraction.deleteReply();
 
             const sucSend = (send, ret) => {
-                ret = tFormant(ret);
+                ret = ret;
                 commandInteraction.channel.send(`Successfully sent ${send} coin to mentioned user, So You are currently have __**${ret}**__ **enough coin**`);
                 //commandInteraction.channel.send("**" + commandInteraction.member.user.username + "** **|** You are currently have __**" + data[0].ecoin + "**__ **enough coin**");
             };
@@ -106,33 +106,17 @@ module.exports = [
             var mentionedMember = commandInteraction.options.getMember("user");
             var mentionedNumber = commandInteraction.options.getNumber("how_many");
 
-            getUser(commandInteraction.user.id, true, async (status1, res1) => {
-                if (status1) {
-                    if (res1.ecoin >= mentionedNumber) {
-                        getUser(mentionedMember.id, true, async (status2, res2) => {
-                            if (status2) {
-                                updateSomethink("ebot", "users", { _id: commandInteraction.user.id }, { "ecoin": -(mentionedNumber) }, {}, async (status3, res3) => {
-                                    if (!status3)
-                                        sucFail();
-                                    else {
-                                        updateSomethink("ebot", "users", { _id: mentionedMember.id }, { "ecoin": -(mentionedNumber) }, {}, async (status4, res4) => {
-                                            if (!status4)
-                                                sucFail();
-                                            else {
-                                                sucSend(mentionedMember, res1.ecoin - mentionedNumber);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    else {
-                        commandInteraction.channel.send("you dont have "+ tFormant(mentionedNumber) + "ecoin");
+            var { user, err } = await getUser(commandInteraction.user.id);
+            console.log(mentionedMember)
 
-                    }
-                }
-            });
+            if (user.coin >= mentionedNumber) {
+                await addCoin(mentionedMember.user.id, mentionedNumber);
+                var {err, user} = await removeCoin(commandInteraction.user.id, mentionedNumber);
+                sucSend(mentionedNumber, user.coin);
+            } else {
+                commandInteraction.channel.send("You dont have enough coin");
+
+            }
 
         },
     },
@@ -194,7 +178,7 @@ module.exports = [
                         });
                     }
                     else {
-                        commandInteraction.channel.send("you dont have "+ tFormant(mentionedNumber) + "ecash");
+                        commandInteraction.channel.send("you dont have " + tFormant(mentionedNumber) + "ecash");
 
                     }
                 }
